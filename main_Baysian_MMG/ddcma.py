@@ -38,7 +38,7 @@ class DdCma:
     """
     
     def __init__(self, xmean0, sigma0, 
-                 lam=3,
+                 lam=5,
                  flg_covariance_update=True,
                  flg_variance_update=None,
                  flg_active_update=True,

@@ -27,7 +27,7 @@ plt.rcParams["mathtext.bf"] = "serif:bold"  # TeX表記に関するフォント�
 plt.rcParams["mathtext.fontset"] = "cm"     # TeX表記に関するフォント設定
 
 # read experiment data
-exp_data = pd.read_csv('testdata/random_processed_Result_sim_0_06-Aug-2020_16_24_25_3.xlsx.csv', header=0, index_col=0) 
+exp_data = pd.read_csv('traindata/random_processed_Result_sim_0_06-Aug-2020_16_24_25_1.xlsx.csv', header=0, index_col=0) 
 dt_sec = exp_data.index[2:3].values - exp_data.index[1:2].values
 
 MMG = optparam.OptParam()
@@ -38,7 +38,7 @@ breadth = 0.48925
 
 # set start time step of MMG simulation
 startstep = 0 
-num_sample = 10
+num_sample = 3
 
 # set control variable
 n_prop = exp_data.loc[exp_data.index[startstep:],'n_prop [rps]'].values
