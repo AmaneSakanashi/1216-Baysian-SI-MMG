@@ -18,7 +18,7 @@ FC=gnu95 f2py -m mmg_esso -c --f90flags='-O3'  shipsim/ship/esso_osaka/f2py_mmg/
 ```
 macの時は以下の方が成功する。
 ```bash
-FC=gfortran f2py -m mmg_esso -c --f90flags='-O3'  shipsim/ship/esso_osaka/f2py_mmg/mmg_esso_osaka_verctor_input.f90 
+FC=gfortran f2py -m mmg_esso -c --f90flags='-O3'  shipsim/mmg_esso_osaka_verctor_input.f90 
 ```
 numpy >= 2.0 を使用する場合、末尾にmesonを明示する方が望ましい。
 ```bash

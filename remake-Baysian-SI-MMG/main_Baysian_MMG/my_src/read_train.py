@@ -41,11 +41,11 @@ class Read_train:
                 state_train[:,5] = data.loc[data.index[startstep:min_timestep], 'r_angvelo [rad/s]'].values
                 # wind ( wind_velo, wind_dir )
                 wind_train = np.empty((min_timestep, 2 ))
-                wind_train[:,0] = data.loc[data.index[startstep:min_timestep], 'wind_velo_true [m/s]'].values
-                wind_train[:,1] = data.loc[data.index[startstep:min_timestep], 'wind_dir_true [rad]'].values
+                wind_train[:,0] = data.loc[data.index[startstep:min_timestep], 'wind_dir_true [rad]'].values
+                wind_train[:,1] = data.loc[data.index[startstep:min_timestep], 'wind_velo_true [m/s]'].values
 
-                self.set_action_train   = np.vstack((self.set_action_train,[action_train]))
                 self.set_state_train    = np.vstack((self.set_state_train, [state_train]))
+                self.set_action_train   = np.vstack((self.set_action_train,[action_train]))
                 self.set_wind_train     = np.vstack((self.set_wind_train, [wind_train]))
 
             return no_file, min_timestep, self.set_action_train, self.set_state_train, self.set_wind_train

@@ -1,45 +1,24 @@
 import numpy as np
 import pandas as pd
+import warnings
+warnings.simplefilter('ignore')
 from multiprocessing import Pool
 # import ray
 # ray.init(num_cpus=32)
-
-import sys
 import time
-
 # print(sys.path)
-import warnings
-warnings.simplefilter('ignore')
 
-import shipsim
+from shipsim import *
+from my_src.ddcma import *
+from my_src.read_bound import *
 
-import simulator
-from my_src.bound import *
-from ddcma import *
-from my_src import *
 
+import SI.simulator as simulator
 from utils.font import font_setting
 
 font_setting()
 
-si = simulator.SI_obj()
-
-ship=shipsim.EssoOsaka_xu()
-
-# Generation mode can be selected from "random" or "stationary".
-wind = shipsim.Wind(mode="stationary")
-
-world=shipsim.OpenSea(wind=wind)
-
-sim = shipsim.ManeuveringSimulation(
-    ship=ship,
-    world=world,
-    dt_act = 1.0,
-    dt_sim=0.1,
-    solve_method="euler", # "euler" or "rk4"train_data
-    log_dir="./log/sim_data/",
-    check_collide=False,
-)
+si = simulator.SI()
 
 # # Define initial state variables––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 L = 3
@@ -48,15 +27,13 @@ B = 0.48925
 # Setting for resart
 NUM_RESTART = 10  # number of restarts with increased population size
 MAX_NEVAL = 1e4   # maximal number of f-calls
-F_TARGET = 1e-2  # target function value
+F_TARGET = -1e3 # target function value
 total_neval = 0   # total number of f-calls
 iter_count = 0
 ### N: Dimention of CMA opt. target 
 N = 57 * 2
-
 # –--------------------------------------------------------------------------------------------------------------------------
-# print("N",N)
-
+# Setting for optimize parameter
 xmean0 = np.random.randn(N)
 # print(len(xmean0))
 
@@ -75,8 +52,8 @@ else:
     sigma0 = 5 * np.ones(N) 
 
 ddcma = DdCma(xmean0, sigma0)
-bound = Set_bound()
-LOWER_BOUND, UPPER_BOUND, FLAG_PERIODIC, period_length = bound.set_param_bound(N)
+read_bound = Set_bound()
+LOWER_BOUND, UPPER_BOUND, FLAG_PERIODIC, period_length = read_bound.set_param_bound(N)
 
 # ddcma.upper_bounding_coordinate_std(period_length)
 checker = Checker(ddcma)
