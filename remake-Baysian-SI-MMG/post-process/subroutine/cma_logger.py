@@ -113,7 +113,7 @@ class Logger:
         idx = 1
         for key in variable_list:
             idx += 1
-            x = np.loadtxt('opt_result/' +  key + '.dat')
+            x = np.loadtxt('log/' +  key + '.dat')
             # x = np.genfromtxt(prefix + '_' + key + '.dat',dtype=None)
 
             x = x[~np.isnan(x[:, xaxis]), :]  # remove columns where xaxis is nan

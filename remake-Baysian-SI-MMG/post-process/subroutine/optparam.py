@@ -4,10 +4,6 @@ import mmg_fort as mf
 
 class OptParam:
     def __init__(self):
-        self.mean_result = pd.read_csv("opt_result/Opt_mean_result.csv", header=None)
-        self.var_result = pd.read_csv("opt_result/Opt_var_result.csv", header=None)
-
-        self.output_path = "log/sim_data/"
         principal_particulars = pd.read_csv(
             'inputfiles/principal_particulars_EssoOsaka3m.csv', header=0, index_col=0
         )
@@ -141,9 +137,11 @@ class OptParam:
         self.mmg_params_vector[59] = parameter_init.at["NN2", "value"]
         self.mmg_params_vector[60] = parameter_init.at["NN3", "value"]
 
-    def update(self):           
-            m_params = np.array(self.mean_result.values.flatten())
-            v_params = np.array(self.var_result.values.flatten())  
+    def update(self, mean_result_path,var_result_path ):   
+            mean_result =   pd.read_csv(mean_result_path, header=None)
+            var_result =    pd.read_csv(var_result_path, header=None)        
+            m_params = np.array(mean_result.values.flatten())
+            v_params = np.array(var_result.values.flatten())  
 
             update_params = np.random.normal(m_params, v_params)
 
