@@ -113,9 +113,10 @@ class EssoOsaka_xu(ShipCore):
         #
         derivative_state = np.empty_like(state)
         derivative_state[0:6] = self.dynamic_model.ode_rhs(x, u, w, update_params)
-        derivative_state[6] = linear_delay_ode_rhs(u[0], u_cmd[0], K=deg2rad(20))
-        # derivative_state[6] = linear_delay_ode_rhs(u[0], u_cmd[0], K=20)
-        derivative_state[7] = linear_delay_ode_rhs(u[1], u_cmd[1], K=20)
+        # derivative_state[6] = linear_delay_ode_rhs(u[0], u_cmd[0], K=deg2rad(20))
+        # # derivative_state[6] = linear_delay_ode_rhs(u[0], u_cmd[0], K=20)
+        # derivative_state[7] = linear_delay_ode_rhs(u[1], u_cmd[1], K=20)
+        derivative_state[6:8] = [0.0,0.0]
         return derivative_state
 
     def observe_state(self, state, np_random=None):
