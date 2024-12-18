@@ -33,10 +33,16 @@ logger = cma_logger.Logger()
 
 lpp = 3
 breadth = 0.48925
+grav = 9.80665
+
+acc_limit = grav * 1.0
+velo_limit = 1.0
+r_limit = velo_limit/(lpp*0.5)
+rdot_limit = acc_limit/(lpp*0.5)
 
 # set start time step of MMG simulation
 startstep = 0 
-num_sample = 2
+num_sample = 3
 
 # set control variable
 n_prop = exp_data.loc[exp_data.index[startstep:],'n_prop [rps]'].values
@@ -59,7 +65,7 @@ stateval[0,3] = exp_v[0] #vm t=0
 stateval[0,4] = exp_psi[0] #psi t=0
 stateval[0,5] = exp_r[0] #r t=0
 
-state_scale = np.array([ 1e-2,1e-5,1e-2,1e-4,1e-3,1e-4 ])
+state_scale = np.array([velo_limit, acc_limit, velo_limit, acc_limit, r_limit, rdot_limit])
 # set true wind (from experiment result, USE TURE WIND!!) 
 windv  = exp_data.loc[exp_data.index[startstep:],'wind_velo_true [m/s]'].values
 windd  = exp_data.loc[exp_data.index[startstep:],'wind_dir_true [rad]'].values
@@ -90,7 +96,7 @@ for n in range(num_sample):
         slope = MMG.ode_rhs(stateval[i:i+1,:], 
                          delta_rudder[i:i+1],n_prop[i:i+1], windv[i:i+1], windd[i:i+1], mmg_params_vector)
 
-        if np.any(abs(slope/state_scale) > 1e+4):
+        if np.any(abs(slope)-state_scale > 0):
             print("!!!!!!!!!!BURST!!!!!!!!!!")
             break
    
@@ -126,16 +132,11 @@ for n in range(num_sample):
         # euler method
         slope = MMG.ode_rhs(stateval[i:i+1,:], 
                          delta_rudder[i:i+1],n_prop[i:i+1], windv[i:i+1], windd[i:i+1], mmg_params_vector)
-
-        if np.any(abs(slope/state_scale) > 1e+4):
-            print("!!!!!!!!!!BURST!!!!!!!!!!")
-            break
    
         stateval[i+1:i+2, :] = stateval[i:i+1, :] + slope[:] * dt_sec
         
         if (int(i % (100/dt_sec) )== 0):
             stateval[i+1:i+2, :] = [exp_x[i], exp_u[i], exp_y[i], exp_v[i], exp_psi[i], exp_r[i]]
-            print("Time = : ", i*dt_sec, "[s]")
     
     # save results
     valid_fixed = np.copy(stateval)

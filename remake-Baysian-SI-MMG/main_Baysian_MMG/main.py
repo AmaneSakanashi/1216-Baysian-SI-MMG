@@ -27,7 +27,7 @@ B = 0.48925
 # Setting for resart
 NUM_RESTART = 10  # number of restarts with increased population size
 MAX_NEVAL = 1e4   # maximal number of f-calls
-F_TARGET = -1e3 # target function value
+F_TARGET = -1e5 # target function value
 total_neval = 0   # total number of f-calls
 iter_count = 0
 ### N: Dimention of CMA opt. target 

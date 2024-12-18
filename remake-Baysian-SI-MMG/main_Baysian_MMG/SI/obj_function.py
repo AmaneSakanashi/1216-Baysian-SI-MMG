@@ -178,26 +178,19 @@ class Obj_function:
 
 
 # @jit
-    def J_norm(self, x_sim, x_train, w_noise, w_max, w_overflow,FLAG_OVERFLOW):
+    def J_norm(self, x_sim, x_train, w_noise):
         sum_error = 0
         error_array = np.zeros(6)
         for i in range(0, 6, 2): 
             ### (0, 6, 2): ONLY state, (1, 6, 2): ONLY velo, (6): state & velo
-            if abs(x_train[i] - x_sim[i])  > w_max or np.isnan(x_train[i] - x_sim[i]) == True :
-                FLAG_OVERFLOW = True
-                error_array[i] = w_overflow[i]
-                sum_error += error_array[i]
-            else:
                 error_array[i] =  w_noise[i] * (x_train[i] - x_sim[i])**2
                 sum_error += error_array[i]
-
-        return sum_error, FLAG_OVERFLOW
+        return sum_error
 
     def J_lkh( self, theta ):
         m_pre_distrb = self.m_pre_disturb_vector
         v_pre_distrb = np.diag(self.v_pre_disturb_vector)        
         func =  0.5 * ((theta - m_pre_distrb).T @ v_pre_distrb @ (theta - m_pre_distrb))
-
         return func
 
 

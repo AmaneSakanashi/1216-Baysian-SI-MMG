@@ -19,22 +19,29 @@ def deg2rad(deg):
 class SI:
     def __init__(self):
         self.dt_sim = 0.1
-        
         self.no_files, self.no_timestep,\
         self.set_action_train, self.set_state_train, self.set_wind_train = Read_train.read_csv(self)
 
         self.Dim = 57
         self.N = 2*self.Dim
         
+        L = 3
+        grav = 9.80665
+
         bound = Set_bound()   
         self.LOWER_BOUND, self.UPPER_BOUND, self.FLAG_PERIODIC, self.period_length = bound.set_param_bound(self.N)
 
         ### initial state ###
         ### w_xxx : Weight of the Obj. term
-        self.w_max = 1e+2
+        acc_limit = grav * 1.0
+        velo_limit = 1.0
+        r_limit = velo_limit/(L*0.5)
+        rdot_limit = acc_limit/(L*0.5)
+
+        self.ds_max = [velo_limit, acc_limit, velo_limit, acc_limit, r_limit, rdot_limit]
+        ## Using value of OBSERVATION_SCALE
         self.w_noise = [0.03,0.01,0.03,0.01, deg2rad(0.1), deg2rad(0.1)]
-        self.w_pen = 1e+6
-        self.w_overflow = [0.3,0.1,0.3,0.1, deg2rad(1), deg2rad(1)]
+        self.w_pen = 1e5
         self.const_Obj = self.N * (math.log( 2 * math.pi + 1 ))
 
         self.FLAG_OVERFLOW = False
@@ -42,7 +49,7 @@ class SI:
     # @ray.remote
     def calc_step(self, x):
             obj = Obj_function(Dim=57)
-            w_noise, w_max, w_overflow, FLAG_OVERFLOW  = self.w_noise, self.w_max, self.w_overflow, self.FLAG_OVERFLOW
+            w_noise, ds_max, FLAG_OVERFLOW  = self.w_noise, self.ds_max,  self.FLAG_OVERFLOW
             update_params = x.copy()        
 
             # t_list = []  
@@ -61,10 +68,11 @@ class SI:
                         self.state_sim = init_state
                         self.t = 0.0
 
-                    t_n, state_sim_n = ship.step(self.t, update_params, self.state_sim,  action_train[i], wind_train[i])
+                    t_n, state_sim_n, FLAG_OVERFLOW = ship.step(self.t, update_params, self.state_sim,  action_train[i], wind_train[i],
+                                                 ds_max, FLAG_OVERFLOW)
             #obj_func
-                    func_i, FLAG_OVERFLOW = obj.J_norm(state_sim_n, state_train[i], w_noise, w_max, w_overflow, FLAG_OVERFLOW )
-                    func += (-1)*func_i
+                    func_i = obj.J_norm(state_sim_n, state_train[i], w_noise)
+                    func += (-1)*func_i 
             # update
                     self.t, self.state_sim = t_n, state_sim_n
 
@@ -88,10 +96,10 @@ class SI:
                 v_params = set_params[self.Dim:]
 
                 ## For degug ---------------------------------------------
-                # mean_result = pd.read_csv("log/Opt_mean_result.csv", header=None)
-                # var_result = pd.read_csv("log/Opt_var_result.csv", header=None)
-                # m_params = np.array(mean_result.values.flatten())
-                # v_params = np.array(var_result.values.flatten())
+                mean_result = pd.read_csv("log/Opt_mean_result.csv", header=None)
+                var_result = pd.read_csv("log/Opt_var_result.csv", header=None)
+                m_params = np.array(mean_result.values.flatten())
+                v_params = np.array(var_result.values.flatten())
                 ## -------------------------------------------------------
                 det_v_params = abs(np.sum(v_params))
 
